@@ -1,323 +1,124 @@
-﻿# CoBug AI Learning Platform
+﻿# CoBug
 
-An AI-powered learning platform that generates personalized quizzes, debugging exercises, and coding tasks — either from a topic you choose or directly from a real GitHub repository.
-
-Built as an internship-level full-stack project using React, Node.js, and the Groq AI API.
+A learning platform that uses AI to generate exercises from any topic or GitHub repository. Built with React, Node.js, and Groq.
 
 ---
 
-## What It Does
+## The idea
 
-- **Learn by topic** — pick a topic, language, and skill level. The AI generates exercises tailored to you.
-- **Learn from a GitHub repo** — paste any public repo URL. The AI reads the code, explains what the project does, lists all files and functions, and generates exercises based on the actual codebase.
-- **Analyze your own code** — paste any code snippet. The AI finds bugs, explains each one in plain English (what's wrong, why it matters, how to fix it), and shows the corrected version.
-- **Adaptive difficulty** — your quiz scores are saved. If you consistently score high, the next quiz gets harder. Score low, it gets easier.
+Most learning tools give you static content. CoBug generates fresh exercises every time — quizzes, debugging challenges, and coding tasks — based on what you want to learn and how well you're doing. You can also drop in a GitHub repo URL and it'll read the actual code to build exercises from it.
 
 ---
 
-## Tech Stack
+## What's inside
 
-| Layer     | Technology                          |
-|-----------|-------------------------------------|
-| Frontend  | React 18, Vite, Tailwind CSS        |
-| Backend   | Node.js, Express                    |
-| AI        | Groq API (llama-3.3-70b-versatile)  |
-| Database  | SQLite via sql.js (pure JavaScript) |
-| HTTP      | Axios                               |
+**Practice** — Pick a topic, language, and skill level. Get a quiz, a buggy code snippet to fix, or a coding problem to solve. Submit your answer and get feedback. The difficulty adjusts based on your recent scores.
 
----
+**Learn a Language** — Pick any language and the AI builds a full curriculum for you. Each topic has a proper lesson — explanation, code examples, common mistakes. Navigate through topics with prev/next, mark them done, track your progress.
 
-## Project Structure
+**GitHub Repo** — Paste a public GitHub URL. The platform reads the code, lists every file and function it found, explains what the project does, and lets you generate exercises based on that codebase.
 
-```
-ai-learning-platform/
-│
-├── backend/
-│   ├── server.js                  # Express app entry point
-│   ├── db.js                      # SQLite database (scores table)
-│   ├── .env                       # Your API keys (not committed)
-│   ├── .env.example               # Template for environment variables
-│   ├── package.json
-│   │
-│   ├── routes/
-│   │   ├── aiRoutes.js            # /api/ai/* — exercise generation & evaluation
-│   │   └── githubRoutes.js        # /api/github/* — repo analysis & code analysis
-│   │
-│   └── services/
-│       ├── openaiService.js       # All Groq/AI prompt logic
-│       └── githubService.js       # GitHub API fetching & code parsing
-│
-└── frontend/
-    ├── index.html
-    ├── vite.config.js             # Dev server + proxy to backend
-    ├── tailwind.config.js
-    ├── postcss.config.js
-    ├── package.json
-    │
-    └── src/
-        ├── main.jsx               # React entry point
-        ├── index.css              # Global styles + font imports
-        ├── App.jsx                # Root component — tab routing & state
-        │
-        └── components/
-            ├── Quiz.jsx           # MCQ quiz with progress bar
-            ├── DebugExercise.jsx  # Code editor for debug & coding tasks
-            ├── Result.jsx         # Score display + AI feedback
-            ├── CodeAnalyzer.jsx   # Paste code → bug analysis
-            └── GitHubExplorer.jsx # GitHub repo explorer + exercise generator
-```
+**Code Analyzer** — Paste any code. Get a breakdown of every bug — what's wrong, why it breaks, how to fix it, and what concept to study. Aimed at beginners who want to actually understand their errors, not just see a red squiggle.
 
 ---
 
-## Setup & Running
+## Stack
 
-### 1. Clone or open the project
+- React 18 + Vite + Tailwind CSS
+- Node.js + Express
+- Groq API (llama-3.3-70b-versatile)
+- SQLite via sql.js
 
-```
-ai-learning-platform/
-├── backend/
-└── frontend/
-```
+---
 
-### 2. Add your Groq API key
+## Setup
 
-Open `backend/.env` and set your key:
-
-```env
-GROQ_API_KEY=gsk_your_key_here
-```
-
-Get a free key at [console.groq.com](https://console.groq.com). No credit card needed.
-
-Optionally add a GitHub token to increase the GitHub API rate limit from 60 to 5000 requests/hour (useful for analyzing many repos):
-
-```env
-GITHUB_TOKEN=ghp_your_token_here
-```
-
-Get one at [github.com/settings/tokens](https://github.com/settings/tokens) — no special scopes needed for public repos.
-
-### 3. Install dependencies
+You need Node.js 18+ and a Groq API key. Groq is free — get a key at [console.groq.com](https://console.groq.com).
 
 ```bash
-# Backend
-cd backend
-npm install
-
-# Frontend
-cd ../frontend
-npm install
+git clone https://github.com/Arjun-115/CoBug-ai-learning-platform.git
+cd CoBug-ai-learning-platform
 ```
 
-### 4. Run the backend
-
+**Backend:**
 ```bash
 cd backend
+npm install
+cp .env.example .env
+# add your GROQ_API_KEY to .env
 npm run dev
-# Runs on http://localhost:5000
 ```
 
-### 5. Run the frontend
-
-Open a second terminal:
-
+**Frontend** (new terminal):
 ```bash
 cd frontend
+npm install
 npm run dev
-# Runs on http://localhost:3000
 ```
 
-Open your browser at **http://localhost:3000**
+Open `http://localhost:3000`.
 
 ---
 
-## Full Workflow
+## Environment variables
 
-### Tab 1 — Learn
+Only one is required. Everything else is optional.
 
-This is the main exercise generator.
-
-```
-User fills in:
-  - Topic (e.g. "async/await", "binary trees")
-  - Language (JavaScript, Python, Java, etc.)
-  - Skill level (Beginner / Intermediate / Advanced)
-
-User clicks one of three buttons:
-  - MCQ Quiz
-  - Debug Exercise
-  - Coding Task
+```env
+GROQ_API_KEY=gsk_...        # required
+GITHUB_TOKEN=ghp_...        # optional, raises GitHub rate limit
+PORT=5000                   # optional, defaults to 5000
 ```
 
-**What happens:**
-
-1. Frontend sends a POST request to the backend with topic, language, skill level, and optional repo context.
-2. Backend checks the user's recent scores in SQLite. If they've been scoring above 85% consistently, it bumps the difficulty up one level. Below 40%, it drops it down.
-3. Backend sends a structured prompt to the Groq API.
-4. Groq returns a JSON response with the exercise.
-5. Frontend renders the exercise.
-6. User submits their answer.
-7. Backend sends the answer + correct answer to Groq for evaluation.
-8. Groq returns a score and written feedback.
-9. Score is saved to SQLite for future difficulty adjustment.
-10. Result screen shows score, per-question breakdown, and AI feedback.
-
 ---
 
-### Tab 2 — GitHub Repo
-
-Analyze any public GitHub repository and generate exercises from its actual code.
+## Project layout
 
 ```
-User pastes a GitHub URL:
-  https://github.com/owner/repository
+├── backend/
+│   ├── server.js
+│   ├── db.js
+│   ├── routes/
+│   │   ├── aiRoutes.js
+│   │   └── githubRoutes.js
+│   └── services/
+│       ├── openaiService.js
+│       └── githubService.js
+│
+└── frontend/
+    └── src/
+        ├── App.jsx
+        └── components/
+            ├── Quiz.jsx
+            ├── DebugExercise.jsx
+            ├── Result.jsx
+            ├── CodeAnalyzer.jsx
+            ├── GitHubExplorer.jsx
+            └── LanguageLearning.jsx
 ```
 
-**What happens:**
+---
 
-1. Frontend sends the URL to `POST /api/github/analyze-full`.
-2. Backend calls the GitHub API to fetch the full file tree.
-3. Backend filters out `node_modules`, `dist`, `build`, and binary files.
-4. Backend fetches the README + up to 8 source files (smallest files first to avoid hitting token limits).
-5. Backend runs a regex pass over each file to extract all function names, class names, and method names with their line numbers.
-6. All of this is sent to Groq with a prompt asking it to:
-   - Describe what the project does in plain English
-   - Identify the tech stack
-   - Describe the architecture
-   - List key features
-   - Suggest what a student can learn from this repo
-   - Suggest 3 exercises based on the codebase
-7. Frontend displays:
-   - Repo name, description, stars, primary language
-   - AI-written purpose and architecture explanation
-   - Tech stack badges
-   - Key features list
-   - "What you can learn" topics
-   - Three sub-tabs: Overview / Files / Functions
-   - Files tab: full list of all code files with line counts
-   - Functions tab: every function and class found, with file name and line number
-   - "Generate Exercise From This Repo" section at the bottom
+## Running on Google Colab
 
-**Generating an exercise from the repo:**
+If you don't want to run it locally, the included `CoBug_AI_Learning_Platform.ipynb` sets everything up in Colab and gives you a public URL via ngrok.
 
-User picks a skill level and clicks Quiz / Debug / Coding. The repo's code is passed as context to the AI prompt, so the generated exercise is based on the actual patterns and code in that repository. The user is taken to the Learn tab where the exercise loads automatically.
+1. Upload the notebook to [colab.research.google.com](https://colab.research.google.com)
+2. Fill in your Groq key and ngrok token in Cell 3
+3. Run cells top to bottom
+4. Cell 6 prints the URL
+
+Get a free ngrok token at [dashboard.ngrok.com](https://dashboard.ngrok.com).
 
 ---
 
-### Tab 3 — Analyze Code
+## Notes
 
-Paste any code snippet and get a detailed, beginner-friendly bug report.
-
-```
-User pastes code into the editor
-User selects language (or leaves it on auto-detect)
-User clicks "Analyze My Code"
-```
-
-**What happens:**
-
-1. Frontend sends the code and language to `POST /api/github/analyze-code`.
-2. Backend sends it to Groq with a detailed prompt asking for:
-   - A plain English summary of what the code does
-   - Every bug found, with type, line number, title, description, why it matters, how to fix it, the corrected line, and a learning note
-   - The fully corrected version of the entire code
-   - An overall explanation paragraph
-   - Things the student did well (encouragement)
-   - Concepts the student should study based on the errors found
-3. Frontend renders each bug as a collapsible card. Clicking a card expands it to show:
-   - What's wrong (plain English)
-   - Why it causes a problem
-   - Step-by-step fix instructions
-   - The corrected code snippet
-   - A "learn more" note explaining the underlying concept
-4. At the bottom: full corrected code toggle + concepts to study chips.
+- No login system. Each browser session gets a random ID for score tracking.
+- GitHub analysis only works on public repos.
+- The database file (`learning.db`) is created automatically on first run and is excluded from git.
+- Groq's free tier has rate limits. If a request fails, wait a moment and retry.
 
 ---
 
-## API Reference
-
-### AI Routes — `/api/ai`
-
-| Method | Endpoint              | Body                                              | Returns                              |
-|--------|-----------------------|---------------------------------------------------|--------------------------------------|
-| POST   | `/quiz`               | `{ topic, language, skillLevel, repoContext? }`   | `{ questions[], adjustedSkillLevel }` |
-| POST   | `/debug`              | `{ topic, language, skillLevel, repoContext? }`   | `{ exercise }`                       |
-| POST   | `/coding`             | `{ topic, language, skillLevel, repoContext? }`   | `{ exercise }`                       |
-| POST   | `/evaluate/quiz`      | `{ questions[], userAnswers[], userId?, ... }`    | `{ score, total, results[], feedback }` |
-| POST   | `/evaluate/debug`     | `{ exercise, userCode }`                          | `{ isCorrect, score, feedback, missedBugs[] }` |
-
-### GitHub Routes — `/api/github`
-
-| Method | Endpoint          | Body           | Returns                                              |
-|--------|-------------------|----------------|------------------------------------------------------|
-| POST   | `/analyze`        | `{ repoUrl }`  | Raw repo data: file list, definitions, code context  |
-| POST   | `/analyze-full`   | `{ repoUrl }`  | Raw data + AI analysis (purpose, tech stack, etc.)   |
-| POST   | `/analyze-code`   | `{ code, language? }` | Bug report with explanations + corrected code |
-
----
-
-## Database
-
-SQLite database stored at `backend/learning.db` (auto-created on first run).
-
-**Table: `scores`**
-
-| Column      | Type    | Description                        |
-|-------------|---------|------------------------------------|
-| id          | INTEGER | Auto-increment primary key         |
-| user_id     | TEXT    | Random session ID from the browser |
-| topic       | TEXT    | Topic of the exercise              |
-| language    | TEXT    | Programming language               |
-| skill_level | TEXT    | beginner / intermediate / advanced |
-| score       | INTEGER | Number of correct answers          |
-| total       | INTEGER | Total questions                    |
-| created_at  | DATETIME| Timestamp                          |
-
-The `user_id` is generated randomly in the browser on page load (`user_abc123`). It persists for the session. No login or authentication is needed.
-
----
-
-## Environment Variables
-
-All environment variables live in `backend/.env`.
-
-| Variable      | Required | Description                                      |
-|---------------|----------|--------------------------------------------------|
-| `GROQ_API_KEY`| Yes      | Your Groq API key from console.groq.com          |
-| `GITHUB_TOKEN`| No       | GitHub PAT to increase API rate limit            |
-| `PORT`        | No       | Backend port (default: 5000)                     |
-
----
-
-## How the AI Prompts Work
-
-The platform uses **prompt-based generation only** — no agents, no embeddings, no vector databases. Every AI call is a single structured prompt sent to Groq's `llama-3.3-70b-versatile` model.
-
-Each prompt:
-- Specifies the exact JSON structure expected in the response
-- Asks for raw JSON with no markdown wrapping
-- Includes a `parseJson()` helper on the backend that strips any accidental markdown fences before parsing
-
-This keeps the AI integration simple, fast, and easy to modify.
-
----
-
-## Known Limitations
-
-- No user accounts — session ID resets on page refresh
-- GitHub analysis only works on public repositories
-- Large repositories (500+ files) may be slow to analyze — only the first 8 source files are read
-- The Groq free tier has rate limits — if you hit them, wait a minute and try again
-- sql.js stores the database in memory and writes to disk on every save — not suitable for production scale, but fine for local use
-
----
-
-## Built With
-
-- [React](https://react.dev)
-- [Vite](https://vitejs.dev)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Express](https://expressjs.com)
-- [Groq API](https://console.groq.com)
-- [sql.js](https://sql.js.org)
-- [Axios](https://axios-http.com)
+Built by [Arjun](https://github.com/Arjun-115)
