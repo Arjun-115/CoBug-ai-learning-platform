@@ -13,8 +13,8 @@ node_modules/
 # Database file (auto-created on first run)
 backend/learning.db
 
-# Build output
-frontend/dist/
+# Build output — keep dist in git so Colab doesn't need to build
+# frontend/dist/
 frontend/build/
 backend/public/
 
