@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: cobug-ai-learning-platform
+    runtime: node
+    rootDir: backend
+    buildCommand: cd ../frontend && npm install && npm run build && cp -r dist ../backend/public && cd ../backend && npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
